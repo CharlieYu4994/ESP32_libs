@@ -92,6 +92,9 @@ void sk6812::set(int led, uint8_t r, uint8_t g, uint8_t b)
 
 /**
  * @brief Set the led with rgb888 data
+ * 
+ * @param led the id of the led
+ * @param rgb888 the rgb888 formated data
  */
 void sk6812::set(int led, uint32_t rgb888)
 {
