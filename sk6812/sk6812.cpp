@@ -1,68 +1,42 @@
 #include "sk6812.h"
 #include "driver/rmt.h"
 
-sk6812::sk6812()
-{
-  _skconfig.rmt_mode = RMT_MODE_TX;
-  _skconfig.channel = RMT_CHANNEL_7;
-  _skconfig.mem_block_num = 1;
-  _skconfig.tx_config.loop_en = 0;
-  _skconfig.tx_config.carrier_en = 0;
-  _skconfig.tx_config.idle_output_en = 1;
-  _skconfig.tx_config.idle_level = RMT_IDLE_LEVEL_LOW;
-  _skconfig.clk_div = 4;
-}
-
-sk6812::~sk6812()
-{
-  free(_buffer);
-  rmt_driver_uninstall(_skconfig.channel);
-}
-
 /**
  * @brief Start the SK6821 Matrix
  * 
  * @param pin the GPIO id
  * @param num the led numbers
- * 
- * @return status
- *     - ESP_ERR_INVALID_STATE Driver is already installed, call rmt_driver_uninstall first.
- *     - ESP_ERR_NO_MEM Memory allocation failure
- *     - ESP_ERR_INVALID_ARG Parameter error
- *     - ESP_OK Success
  */
-esp_err_t sk6812::begin(int pin, int num)
+sk6812::sk6812(int pin, int num)
 {
-
   _bitnum = num * 24;
   _lednum = num;
 
-  esp_err_t status;
-
   _buffer = (rmt_item32_t *)calloc(_bitnum, sizeof(rmt_item32_t));
 
-  _skconfig.gpio_num = (gpio_num_t)pin;
-  rmt_config(&_skconfig);
-  status = rmt_driver_install(_skconfig.channel, 0, 0);
+  _config.rmt_mode = RMT_MODE_TX;
+  _config.channel = RMT_CHANNEL_7;
+  _config.mem_block_num = 1;
+  _config.tx_config.loop_en = 0;
+  _config.tx_config.carrier_en = 0;
+  _config.tx_config.idle_output_en = 1;
+  _config.tx_config.idle_level = RMT_IDLE_LEVEL_LOW;
+  _config.clk_div = 4;
+  _config.gpio_num = (gpio_num_t)pin;
 
-  return (status);
+  ESP_ERROR_CHECK_WITHOUT_ABORT(rmt_config(&_config));
+  ESP_ERROR_CHECK_WITHOUT_ABORT(
+      rmt_driver_install(_config.channel, 0, 0));
 }
 
 /**
  * @brief End the SK6821 Matrix
- * 
- * @return status
- *     - ESP_ERR_INVALID_STATE Driver is already installed, call rmt_driver_uninstall first.
- *     - ESP_ERR_NO_MEM Memory allocation failure
- *     - ESP_ERR_INVALID_ARG Parameter error
- *     - ESP_OK Success
  */
-esp_err_t sk6812::end()
+sk6812::~sk6812()
 {
-  esp_err_t status;
   free(_buffer);
-  status = rmt_driver_uninstall(_skconfig.channel);
-  return (status);
+  ESP_ERROR_CHECK_WITHOUT_ABORT(
+      rmt_driver_uninstall(_config.channel));
 }
 
 /**
@@ -89,20 +63,20 @@ uint32_t sk6812::packcolor(uint8_t r, uint8_t g, uint8_t b)
  * @param g green
  * @param b blue
  */
-void sk6812::setLED(int led, uint8_t r, uint8_t g, uint8_t b)
+void sk6812::set(int led, uint8_t r, uint8_t g, uint8_t b)
 {
   uint32_t data;
 
   data = packcolor(r, g, b);
 
-  setLED(led, data);
+  set(led, data);
   return;
 }
 
 /**
  * @brief Set the led with rgb888 data
  */
-void sk6812::setLED(int led, uint32_t rgb888)
+void sk6812::set(int led, uint32_t rgb888)
 {
   int i, bit;
   uint8_t r, g, b;
@@ -119,7 +93,7 @@ void sk6812::setLED(int led, uint32_t rgb888)
 
   for (i = led * 24, bit = 0; bit < 24; bit++)
   {
-    if (data & (1 << (23 - bit)))
+    if (data & (0x01 << (23 - bit)))
     {
       _buffer[i].level0 = 1;
       _buffer[i].duration0 = 12;
@@ -143,18 +117,6 @@ void sk6812::setLED(int led, uint32_t rgb888)
  */
 esp_err_t sk6812::show()
 {
-  esp_err_t status;
-  status = rmt_write_items(_skconfig.channel, _buffer, _bitnum, 1);
-  return status;
-}
-
-/**
- * @brief Clear the buffer
- */
-void sk6812::clear()
-{
-  for (int i = 0; i < _lednum; ++i)
-  {
-    setLED(i, 0, 0, 0);
-  }
+  ESP_ERROR_CHECK_WITHOUT_ABORT(
+      rmt_write_items(_config.channel, _buffer, _bitnum, 1));
 }
