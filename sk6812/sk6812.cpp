@@ -24,9 +24,8 @@ sk6812::sk6812(int pin, int num)
   _config.clk_div = 4;
   _config.gpio_num = (gpio_num_t)pin;
 
-  ESP_ERROR_CHECK_WITHOUT_ABORT(rmt_config(&_config));
-  ESP_ERROR_CHECK_WITHOUT_ABORT(
-      rmt_driver_install(_config.channel, 0, 0));
+  ESP_ERROR_CHECK(rmt_config(&_config));
+  ESP_ERROR_CHECK(rmt_driver_install(_config.channel, 0, 0));
 }
 
 /**
@@ -35,8 +34,7 @@ sk6812::sk6812(int pin, int num)
 sk6812::~sk6812()
 {
   free(_buffer);
-  ESP_ERROR_CHECK_WITHOUT_ABORT(
-      rmt_driver_uninstall(_config.channel));
+  ESP_ERROR_CHECK(rmt_driver_uninstall(_config.channel));
 }
 
 /**
@@ -115,8 +113,7 @@ void sk6812::set(int led, uint32_t rgb888)
 /**
  * @brief Show the buffer
  */
-esp_err_t sk6812::show()
+void sk6812::show()
 {
-  ESP_ERROR_CHECK_WITHOUT_ABORT(
-      rmt_write_items(_config.channel, _buffer, _bitnum, 1));
+  ESP_ERROR_CHECK(rmt_write_items(_config.channel, _buffer, _bitnum, 1));
 }
