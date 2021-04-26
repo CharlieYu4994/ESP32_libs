@@ -1,22 +1,3 @@
-/**
- * Copyright (C) 2021 CharlieYu
- * 
- * This file is part of ESP32_libs.
- * 
- * ESP32_libs is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * ESP32_libs is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with ESP32_libs.  If not, see <http://www.gnu.org/licenses/>.
- */
-
 #include "sk6812.h"
 #include "driver/rmt.h"
 
@@ -72,6 +53,18 @@ uint32_t sk6812::packcolor(uint8_t r, uint8_t g, uint8_t b)
   return (data);
 }
 
+uint32_t sk6812::repackcolor(uint32_t rgb888)
+{
+  uint32_t data;
+  uint8_t r, g, b;
+
+  r = (rgb888 >> 16) & 0xff;
+  g = (rgb888 >> 8) & 0xff;
+  b = rgb888 & 0xff;
+  data = packcolor(r, g, b);
+  return (data);
+}
+
 /**
  * @brief Set the led with r,g,b value
  * 
@@ -86,27 +79,26 @@ void sk6812::set(int led, uint8_t r, uint8_t g, uint8_t b)
 
   data = packcolor(r, g, b);
 
-  set(led, data);
+  _set(led, data);
+  return;
+}
+
+void sk6812::set(int led, uint32_t rgb888)
+{
+  uint32_t data;
+
+  data = repackcolor(rgb888);
+
+  _set(led, data);
   return;
 }
 
 /**
  * @brief Set the led with rgb888 data
- * 
- * @param led the id of the led
- * @param rgb888 the rgb888 formated data
  */
-void sk6812::set(int led, uint32_t rgb888)
+void sk6812::_set(int led, uint32_t data)
 {
   int i, bit;
-  uint8_t r, g, b;
-  uint32_t data;
-
-  r = (rgb888 >> 16) & 0xff;
-  g = (rgb888 >> 8) & 0xff;
-  b = rgb888 & 0xff;
-
-  data = packcolor(r, g, b);
 
   if (led < 0 || led >= _lednum)
     return;
