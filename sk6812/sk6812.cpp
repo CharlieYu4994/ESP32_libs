@@ -15,7 +15,7 @@ sk6812::sk6812(int pin, int num)
   _buffer = (rmt_item32_t *)calloc(_bitnum, sizeof(rmt_item32_t));
 
   _config.rmt_mode = RMT_MODE_TX;
-  _config.channel = RMT_CHANNEL_7;
+  _config.channel = CH;
   _config.mem_block_num = 1;
   _config.tx_config.loop_en = 0;
   _config.tx_config.carrier_en = 0;
