@@ -1,11 +1,19 @@
+/**
+ * Copyright (c) 2021 CharlieYu4994
+ * 
+ * This software is released under the MIT License.
+ * https://opensource.org/licenses/MIT
+ */
+
 #pragma once
 
+#include <stdint.h>
 #include "driver/rmt.h"
 
 #if SOC_RMT_CHANNELS_NUM > 4
-    #define CH RMT_CHANNEL_7
+    #define RMT_CHANNEL RMT_CHANNEL_7
 #else
-    #define CH RMT_CHANNEL_3
+    #define RMT_CHANNEL RMT_CHANNEL_3
 #endif
 
 class sk6812
