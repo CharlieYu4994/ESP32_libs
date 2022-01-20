@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2021 CharlieYu4994
- * 
+ *
  * This software is released under the MIT License.
  * https://opensource.org/licenses/MIT
  */
@@ -11,7 +11,7 @@ framebuffer::framebuffer(uint16_t w, uint16_t h, uint16_t s = 0)
 {
     _width = w;
     _height = h;
-    _stride = (_stride > 0) ? s : w;
+    _stride = (s > 0) ? s : w;
 
     _size = w * h;
     _buffer = new uint8_t[_size];
@@ -68,14 +68,17 @@ void framebuffer::fill_rect(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, 
 
     uint8_t page0 = y0 / 8, page1 = y1 / 8;
 
-    for (uint16_t i = x0; i < x1; i++)
+    if (data == 0)
     {
-        if (data == 0)
+        for (uint16_t i = x0; i < x1; i++)
         {
             _buffer[page0 * _stride + i] |= maskT;
             _buffer[page1 * _stride + i] |= maskB;
         }
-        else
+    }
+    else
+    {
+        for (uint16_t i = x0; i < x1; i++)
         {
             _buffer[page0 * _stride + i] &= maskT;
             _buffer[page1 * _stride + i] &= maskB;

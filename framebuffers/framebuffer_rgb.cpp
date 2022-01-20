@@ -7,17 +7,17 @@
 
 #include "framebuffer_rgb.h"
 
-framebuffer_rgb::framebuffer_rgb(uint16_t w, uint16_t h, uint16_t s): framebuffer(w, h, s)
+framebuffer_rgb888::framebuffer_rgb888(uint16_t w, uint16_t h, uint16_t s): framebuffer(w, h, s)
 {
     _buffer = new pixel[_size];
 }
 
-framebuffer_rgb::~framebuffer_rgb()
+framebuffer_rgb888::~framebuffer_rgb888()
 {
     delete _buffer;
 }
 
-void framebuffer_rgb::set_pixel(uint16_t x, uint16_t y, uint32_t data)
+void framebuffer_rgb888::set_pixel(uint16_t x, uint16_t y, uint32_t data)
 {
     uint16_t index = y * _stride + x;
 
@@ -26,12 +26,12 @@ void framebuffer_rgb::set_pixel(uint16_t x, uint16_t y, uint32_t data)
     _buffer[index].b = data & 0xff;
 }
 
-pixel framebuffer_rgb::get_pixel(uint16_t x, uint16_t y)
+pixel framebuffer_rgb888::get_pixel(uint16_t x, uint16_t y)
 {
     return _buffer[y * _stride + x];
 }
 
-void framebuffer_rgb::fill(uint32_t data)
+void framebuffer_rgb888::fill(uint32_t data)
 {
     pixel block{
         .r = (data >> 16) & 0xff,
@@ -41,7 +41,7 @@ void framebuffer_rgb::fill(uint32_t data)
     std::fill_n(_buffer, _size, block);
 }
 
-void framebuffer_rgb::fill_rect(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint32_t data)
+void framebuffer_rgb888::fill_rect(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint32_t data)
 {
     pixel block{
         .r = (data >> 16) & 0xff,

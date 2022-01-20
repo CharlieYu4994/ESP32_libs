@@ -5,6 +5,7 @@
  * https://opensource.org/licenses/MIT
  */
 
+#pragma once
 #include <stdint.h>
 #include <algorithm>
 
