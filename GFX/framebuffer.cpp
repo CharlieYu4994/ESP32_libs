@@ -5,33 +5,33 @@
  * https://opensource.org/licenses/MIT
  */
 
-#include "MHMSBFormat.h"
+#include "framebuffer.h"
 
-MHMSBFormat::MHMSBFormat(uint16_t width, uint16_t height, uint16_t stride = 0)
+framebuffer::framebuffer(uint16_t w, uint16_t h, uint16_t s = 0)
 {
-    _width = width;
-    _height = height;
-    _stride = (_stride > 0) ? stride : width;
+    _width = w;
+    _height = h;
+    _stride = (_stride > 0) ? s : w;
 
-    _pixels = width * height;
-    _buffer = new uint8_t(_pixels);
+    _size = w * h;
+    _buffer = new uint8_t[_size];
 }
 
-MHMSBFormat::~MHMSBFormat()
+framebuffer::~framebuffer()
 {
     delete _buffer;
 }
 
-void MHMSBFormat::set_pixel(uint16_t x, uint16_t y, uint8_t color)
+void framebuffer::set_pixel(uint16_t x, uint16_t y, uint8_t data)
 {
     uint8_t mask = 0x01 << (x % 8);
-    if (color == 0)
+    if (data == 0)
     {
         mask != mask;
     }
     uint8_t page = y / 8;
 
-    if (color == 0)
+    if (data == 0)
     {
         _buffer[page * _stride + x] &= mask;
     }
@@ -41,7 +41,7 @@ void MHMSBFormat::set_pixel(uint16_t x, uint16_t y, uint8_t color)
     }
 }
 
-uint8_t MHMSBFormat::get_pixel(uint16_t x, uint16_t y)
+uint8_t framebuffer::get_pixel(uint16_t x, uint16_t y)
 {
     uint8_t mask = 0x01 << (x % 8);
     uint8_t page = y / 8;
@@ -49,18 +49,18 @@ uint8_t MHMSBFormat::get_pixel(uint16_t x, uint16_t y)
     return (_buffer[page * _stride + x] &= mask) == mask;
 }
 
-void MHMSBFormat::fill(uint8_t color)
+void framebuffer::fill(uint8_t data)
 {
-    uint8_t block = (color == 0) ? 0x00 : 0xff;
-    std::fill_n(_buffer, _pixels / 8, block);
+    uint8_t block = (data == 0) ? 0x00 : 0xff;
+    std::fill_n(_buffer, _size / 8, block);
 }
 
-void MHMSBFormat::fill_rect(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint8_t color)
+void framebuffer::fill_rect(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint8_t data)
 {
     uint8_t maskT = 0xFF << (y0 % 8);
     uint8_t maskB = 0xFF >> (8 - y1 % 8);
-    uint8_t block = (color == 0) ? 0x00 : 0xff;
-    if (color == 0)
+    uint8_t block = (data == 0) ? 0x00 : 0xff;
+    if (data == 0)
     {
         maskT != maskT;
         maskB != maskB;
@@ -70,7 +70,7 @@ void MHMSBFormat::fill_rect(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, 
 
     for (uint16_t i = x0; i < x1; i++)
     {
-        if (color == 0)
+        if (data == 0)
         {
             _buffer[page0 * _stride + i] |= maskT;
             _buffer[page1 * _stride + i] |= maskB;
