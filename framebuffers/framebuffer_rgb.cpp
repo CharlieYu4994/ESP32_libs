@@ -1,13 +1,13 @@
 /**
  * Copyright (c) 2021 CharlieYu4994
- * 
+ *
  * This software is released under the MIT License.
  * https://opensource.org/licenses/MIT
  */
 
 #include "framebuffer_rgb.h"
 
-framebuffer_rgb888::framebuffer_rgb888(uint16_t w, uint16_t h, uint16_t s): framebuffer(w, h, s)
+framebuffer_rgb888::framebuffer_rgb888(uint16_t w, uint16_t h, uint16_t s) : framebuffer(w, h, s)
 {
     _buffer = new pixel[_size];
 }
@@ -48,8 +48,11 @@ void framebuffer_rgb888::fill_rect(uint16_t x0, uint16_t y0, uint16_t x1, uint16
         .g = (data >> 8) & 0xff,
         .b = data & 0xff};
 
-    for (uint16_t i = y0; i < y1; i++)
+    uint16_t index = y0 * _stride + x0;
+
+    for (uint16_t i = 0; i < y1 - y0; i++)
     {
-        std::fill_n(&_buffer[y0 * _stride + x0], block, x1 - x0);
+        std::fill_n(&_buffer[index], x1 - x0, block);
+        index += _stride + x0;
     }
 }
